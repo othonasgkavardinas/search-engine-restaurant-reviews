@@ -2,4 +2,4 @@
 
 ## Search Engine
 Ανάκτηση πληροφορίας  
-Search Engine for restaurant reviews.
+Search Engine for restaurants in Yelp Dataset.
