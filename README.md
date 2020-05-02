@@ -1,4 +1,4 @@
-# restaurant-reviews
+# search-engine-restaurant-reviews
 
 ## Search Engine
 Ανάκτηση πληροφορίας  
