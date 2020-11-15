@@ -20,3 +20,7 @@ Import Java project to Eclipse.
 ### Tested on
 Eclipse 2020-03  
 JavaSE-11 (openjdk 11.0.9.1)
+
+### Dependencies
+Apache Lucene 7.2.1  
+Json Simple 1.1.1
