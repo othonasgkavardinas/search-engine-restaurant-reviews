@@ -2,7 +2,7 @@
 
 ## Search Engine
 Ανάκτηση πληροφορίας  
-Search Engine that answers queries about restaurants and restaurant reviews in the Yelp Dataset 2018.
+Search Engine that answers queries about restaurants and restaurant reviews of the Yelp Dataset 2018.
 
 ### /files
 Contains the assignment and the project report.
@@ -14,7 +14,8 @@ Import Java project to Eclipse.
 ### Notes
 - Project works for Yelp dataset 2018, json format.  
 (contains business.json and review.json)  
-- Lucene version 7.2.1 is used.
+- Lucene version 7.2.1 is used.  
+- Yelp dataset is not provided.
 
 ### Tested on
 Eclipse 2020-03  
