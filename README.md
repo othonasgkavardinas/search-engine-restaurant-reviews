@@ -5,7 +5,7 @@
 Search Engine that answers queries about restaurants and restaurant reviews of the Yelp Dataset 2018.
 
 ### /files
-Contains the assignment and the project report.
+Contains the assignment and project report.
 
 ### Installation
 Import Java project to Eclipse.  
