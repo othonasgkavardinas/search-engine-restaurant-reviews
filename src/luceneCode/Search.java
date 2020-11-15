@@ -4,6 +4,8 @@ import GUI.Menu;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import org.apache.lucene.analysis.Analyzer;
@@ -26,74 +28,67 @@ import org.apache.lucene.search.TermQuery;
 
 public class Search {
 	
-	private static String indexPath = "Index";
-	private Path indexDir = Paths.get(indexPath);
-	
-	public Search() {} //empty constractor
-	
 	//doSearch is the method for search, 
 	//					 				userQuery has user's request,
 	//					 				field has the Field for search,
 	//					 				kindOfSearch has "Restaurants", if user's search is for Restaurants 
 	//									and "Reviews", if user's search is for Reviews,
 	//									sortBy has the Field for sort
-	public void doSearch(String userQuery, String field, String kindOfSearch, String sortBy) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
+	public static void doSearch(String userQuery, String field, String kindOfSearch, String sortBy) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
+		Path indexDir = Paths.get("Index");
 		IndexReader reader = DirectoryReader.open(FSDirectory.open(indexDir)); //create an IndexReader
 	    IndexSearcher searcher = new IndexSearcher(reader); //create an IndexSearcher
 	    Analyzer analyzer = new StandardAnalyzer(); //create a StandardAnalyzer
 	    
-	    QueryParser parser;
+	    String[] fields;
 	    Query query;   
-	    if(field.equals("location and review")) { //if search is for Restaurants and for more than one Fields
-	    	String fields[] = new String[4];
-	    	fields[0] = "city";
-	    	fields[1] = "state";
-	    	fields[2] = "address";
-	    	fields[3] = "review";
-	    	MultiFieldQueryParser mparser = new MultiFieldQueryParser(fields, analyzer); //create a MultiFieldQueryParser for these Fields
-	    	query = mparser.parse(userQuery); //create the query for search
+	    QueryParser parser;
+	    switch(field) {
+	    	case "location and review":
+	    		fields = new String[] { "city", "state", "address", "review" };
+	    		parser = new MultiFieldQueryParser(fields, analyzer); //create a MultiFieldQueryParser for these Fields
+	    		break;
+	    	case "name and review" ://if search is for Reviews and for more than one Fields 
+	    		fields = new String[] { "name", "review" };
+	    		parser = new MultiFieldQueryParser(fields, analyzer); //create a MultiFieldQueryParser for these Fields
+	    		break;
+	    	default:
+	    		parser = new QueryParser(field, analyzer); //create a QueryParser for one Field
 	    }
-	    else if(field.equals("name and review")) { //if search is for Reviews and for more than one Fields 
-	    	String fields[] = new String[2];
-	    	fields[0] = "name";
-	    	fields[1] = "review";
-	    	MultiFieldQueryParser mparser = new MultiFieldQueryParser(fields, analyzer); //create a MultiFieldQueryParser for these Fields
-	    	query = mparser.parse(userQuery); //create the query for search
-	    }
-	    else {
-	    	parser = new QueryParser(field, analyzer); //create a QueryParser for one Field
-	    	query = parser.parse(userQuery); //create the query for search
-	    }
+	    query = parser.parse(userQuery); //create the query for search
 	    
 	    //Depending on the type of search and layout, 
 	    //we store the 1000 most relevant search results, according to the query, appropriately arranged
 	    Sort sort = null;
 	    TopDocs topDocs = null;
-	    if(kindOfSearch.equals("Restaurants")) {
-	    	if (sortBy.equals("Sort by: text (default)")) {
-	    		 topDocs = searcher.search(query, 1000);
-	    	}
-	    	else if (sortBy.equals("Sort by: number of reviews")) {
-	    		sort = new Sort(SortField.FIELD_SCORE, new SortField("number_of_reviews", Type.STRING));
-	    		topDocs = searcher.search(query, 1000, sort, true, true);
-	    	}
-	    	else if (sortBy.equals("Sort by: number of stars")) {
-	    		sort = new Sort(new SortField("stars", SortField.Type.STRING));
-	    		topDocs = searcher.search(new TermQuery(new Term("stars")),1000,sort);
-	    	}
-	    }
-	    else if(kindOfSearch.equals("Reviews")) {
-	    	if (sortBy.equals("Sort by: text (default)")) {
-	    		topDocs = searcher.search(query, 1000);
-	    	}
-	    	else if (sortBy.equals("Sort by: useful count")) {
-	    		sort = new Sort(SortField.FIELD_SCORE, new SortField("useful", Type.STRING));
-	    		topDocs = searcher.search(query, 1000, sort, true, true);
-	    	}
-	    	else if (sortBy.equals("Sort by: more recent")) {
-	    		sort = new Sort(SortField.FIELD_SCORE, new SortField("date", Type.STRING));
-	    		topDocs = searcher.search(query, 1000, sort, true, true);
-	    	}
+	    switch(kindOfSearch) {
+	    	case "Restaurants":
+	    		switch(sortBy) {
+	    			case "Sort by: text (default)":
+	    				topDocs = searcher.search(query, 1000);
+	    				break;
+	    			case "Sort by: number of reviews":
+	    				sort = new Sort(SortField.FIELD_SCORE, new SortField("number_of_reviews", Type.STRING));
+	    				topDocs = searcher.search(query, 1000, sort, true, true);
+	    				break;
+	    			case "Sort by: number of stars":
+	    				sort = new Sort(new SortField("stars", SortField.Type.STRING));
+	    				topDocs = searcher.search(new TermQuery(new Term("stars")),1000,sort);
+	    		}
+	    		break;
+	    	case "Reviews":
+	    		switch(sortBy) {
+	    			case "Sort by: text (default)":
+	    				topDocs = searcher.search(query, 1000);
+	    				break;
+	    			case "Sort by: useful count":
+	    				sort = new Sort(SortField.FIELD_SCORE, new SortField("useful", Type.STRING));
+	    				topDocs = searcher.search(query, 1000, sort, true, true);
+	    				break;
+	    			case "Sort by: more recent" :
+	    				sort = new Sort(SortField.FIELD_SCORE, new SortField("date", Type.STRING));
+	    				topDocs = searcher.search(query, 1000, sort, true, true);
+	    		}
 	    }
 	
 	    ScoreDoc[] hits = topDocs.scoreDocs; //store results in a ScoreDoc list
@@ -101,34 +96,26 @@ public class Search {
 	    //from the results, we collect only them in different city for Restaurants,
 	    //and them from different user for Reviews
 	    HashMap<String,String> newHits = new HashMap<String,String>();
-	    HashSet<String> location = new HashSet<String>();
-	    HashSet<String> users = new HashSet<String>();
 	    int docId;
 	    Document d;
-	    for (int i = 0; i < hits.length; i++) {
-	    	if(kindOfSearch.equals("Restaurants")) {
-		    	docId = hits[i].doc;
-	            d = searcher.doc(docId);
-		    	if(!location.contains(d.get("city"))) {
-		    		location.add(d.get("city"));
-		    		newHits.put(d.get("name"), d.get("filename"));
-		    	}
-		    	else if(newHits.size()<100) {
-		    		newHits.put(d.get("name"), d.get("filename"));
-		    	}
-	    	}
-	    	else if(kindOfSearch.equals("Reviews")) {
-	    		docId = hits[i].doc;
-	            d = searcher.doc(docId);
-	            if(!users.contains(d.get("user"))) {
-		    		users.add(d.get("user"));
-		    		newHits.put(d.get("name"), d.get("filename"));
-		    	}
-	            else if(newHits.size()<100) {
-	            	newHits.put(d.get("name"), d.get("filename"));
-		    	}
-	    	}
-	    }
+	    String[] kindOfSearchOptions = { "Restaurants", "Reviews" };
+	    String[] kindOfSearchFields = { "city", "user" };
+	    ArrayList<HashSet<String>> kindOfSearchWhere = new ArrayList<HashSet<String>>();
+	    kindOfSearchWhere.addAll(Arrays.asList(new HashSet<String>(), new HashSet<String>()));
+	    int kindOfSearchOptionsNo = 2;
+	    for (int i=0; i<hits.length; i++)
+	    	for (int j=0; j<kindOfSearchOptionsNo; j++)
+	    		if(kindOfSearch.equals(kindOfSearchOptions[j])) {
+	    			docId = hits[i].doc;
+	    			d = searcher.doc(docId);
+	    			if(!kindOfSearchWhere.get(j).contains(d.get(kindOfSearchFields[j]))) {
+	    				kindOfSearchWhere.get(j).add(d.get(kindOfSearchFields[j]));
+	    				newHits.put(d.get("name"), d.get("filename"));
+	    			}
+	    			else if(newHits.size()<100)
+	    				newHits.put(d.get("name"), d.get("filename"));
+	    			break;
+	    		}	
 	    
 	    Menu menu = new Menu();  //create a Menu object
 	    menu.results(newHits, userQuery); //call results method in Menu class

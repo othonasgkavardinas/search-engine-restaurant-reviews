@@ -62,9 +62,8 @@ class ButtonEditor extends DefaultCellEditor{ //this class is for reading the Fi
 				BufferedReader input = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 	    	    String sCurrentLine;
 	    	    String text = "";
-	    	    while ((sCurrentLine = input.readLine()) != null) {
+	    	    while ((sCurrentLine = input.readLine()) != null)
 	    	    	text += sCurrentLine +'\n';
-	    		}
 	    	    JTextArea textArea = new JTextArea(text);
 	    	    textArea.setBounds(10, 11, 966, 670);
 	    	    textArea.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -80,18 +79,18 @@ class ButtonEditor extends DefaultCellEditor{ //this class is for reading the Fi
 	    		e.printStackTrace();
 	    	}
 		}
-		clicked=false; //set it to false
+		clicked = false; //set it to false
 		return new String(lbl);
 	}
 
 	@Override
 	public boolean stopCellEditing() {
-		clicked=false; //set clicked to false first
+		clicked = false; //set clicked to false first
 		return super.stopCellEditing();
 	}
 
 	@Override
 	protected void fireEditingStopped() {
-			super.fireEditingStopped();
+		super.fireEditingStopped();
 	}
 }

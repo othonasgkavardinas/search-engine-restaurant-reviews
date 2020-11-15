@@ -15,19 +15,19 @@ import java.io.FileWriter;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.ArrayList;
-
+import java.util.Arrays;
 import java.io.BufferedWriter;
 import java.io.File;
 
 
-public class DataCollector
-{
-	static HashSet<String> mySet = new HashSet<String>();
+public class DataCollector {
+	static HashSet<String> setOfIds = new HashSet<String>();
 	static ArrayList<String> restaurantContents;
 	static HashMap<String,ArrayList<String>> restaurants = new HashMap<String,ArrayList<String>>();
+	static String businessFilePath = "business.json";
+	static String reviewFilePath = "review.json";
 	
-    public static void main(String[] args)
-    {        
+    public static void main(String[] args) {
         readJsonFile();
     }
 
@@ -53,7 +53,7 @@ public class DataCollector
         try {
             String sCurrentLine;
 
-            br = new BufferedReader(new FileReader("business.json")); //read file with businesses
+            br = new BufferedReader(new FileReader(businessFilePath)); //read file with businesses
 
             while ((sCurrentLine = br.readLine()) != null) {
                Object obj;
@@ -65,22 +65,16 @@ public class DataCollector
                     
                     review_count = (long) jsonObject.get("review_count");
                     if(review_count > 50) //check if business has more than 50 reviews
-                    {
                     	flag2 = true;
-                    }
                    
                     JSONArray categories = (JSONArray) jsonObject.get("categories");
                     @SuppressWarnings("rawtypes")
 					Iterator iterator = categories.iterator();
-                    while (iterator.hasNext()) {
+                    while (iterator.hasNext())
                     	if(iterator.next().equals("Restaurants")) //check if business is Restaurant
-                    	{
                     		flag = true;
-                    	}
-                    }
                     
-                    if(flag == true && flag2 == true)
-                    {
+                    if(flag == true && flag2 == true) {
 	                    business_id = (String) jsonObject.get("business_id");
 	                    name = (String) jsonObject.get("name");
 	                    address = (String) jsonObject.get("address");
@@ -90,41 +84,28 @@ public class DataCollector
 	                    
 	                    review_number += review_count;
 	                    if(review_count > max_review)
-	                    {
 	                    	max_review = review_count;
-	                    }
 	                    if(review_count < min_review)
-	                    {
 	                    	min_review = review_count;
-	                    }
 	                    restaurantContents = new ArrayList<String>(); //add information about Restaurant in an ArrayList
-	                    restaurantContents.add(name);
-	                    restaurantContents.add(address);
-	                    restaurantContents.add(city);
-	                    restaurantContents.add(state);
-	                	restaurantContents.add(""+stars);
-	                	restaurantContents.add(""+review_count);
+	                    restaurantContents.addAll(Arrays.asList(name, address, city, state, ""+stars, ""+review_count));
 	                	restaurants.put(business_id, restaurantContents);
 	                	counter += 1;
-                		mySet.add(business_id);
+                		setOfIds.add(business_id);
                     }
                     
-                    if(counter == 14000) 
-                    {
-                    	System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~"); //print some data
-                    	System.out.println("restaurant_number: "+ counter);
-                    	System.out.println("review_number: "+ review_number);
-                    	System.out.println("avg_review: "+ (review_number/counter));
-                    	System.out.println("min_review: "+ min_review);
-                    	System.out.println("max_review: "+ max_review);
-                    	System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                    	
+                    if(counter == 14000) {
+                    	System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+                    						+ "restaurant_number: " + counter + "\n"
+                    						+ "review_number: " + review_number + "\n"
+                    						+ "avg_review: " + review_number/counter + "\n"
+                    						+ "min_review: " + min_review + "\n"
+                    						+ "max_review: "+ max_review + "\n"
+                    						+ "~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                     	createDocuments();  
                     	readJsonFile2();
                     	break;
                     }
-                 
-
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -134,7 +115,7 @@ public class DataCollector
             e.printStackTrace();
         } finally {
             try {
-                if (br != null)br.close();
+                if (br != null) br.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -145,7 +126,7 @@ public class DataCollector
 	public static void readJsonFile2() { //method for reviews
     	BufferedReader br = null;
         JSONParser parser = new JSONParser();
-        String business_id2;
+        String business_id;
         String user_id;
         long stars;
         String date;
@@ -160,20 +141,18 @@ public class DataCollector
 
             String sCurrentLine;
 
-            br = new BufferedReader(new FileReader("review.json")); //read file with reviews
+            br = new BufferedReader(new FileReader(reviewFilePath)); //read file with reviews
 
             while ((sCurrentLine = br.readLine()) != null) {
             	Object obj;
-                try 
-   				{
-                       obj = parser.parse(sCurrentLine);
-                       JSONObject jsonObject = (JSONObject) obj;
+                try {
+                	obj = parser.parse(sCurrentLine);
+                	JSONObject jsonObject = (JSONObject) obj;
                        
-                       business_id2 = (String) jsonObject.get("business_id");
+                	business_id = (String) jsonObject.get("business_id");
                        
-                       if(mySet.contains(business_id2)) //if review is for one of our Restaurants
-                       {
-                       	//collect information about review
+                	if(setOfIds.contains(business_id)) { //if review is for one of our Restaurants
+                		//collect information about review
    	                    user_id = (String) jsonObject.get("user_id");
    	                    stars = (long) jsonObject.get("stars");
    	                    date = (String) jsonObject.get("date");
@@ -183,8 +162,8 @@ public class DataCollector
    	                    cool = (long) jsonObject.get("cool");
                         
                        	try { //store in Restaurant's file the information
-                       		File file1 = new File("C:\\Users\\stell\\eclipse-workspace\\RestaurantReviews\\Documents\\"+business_id2+".txt");
-                       		fw = new FileWriter(file1.getAbsoluteFile(), true);
+                       		File file = new File("Documents/"+business_id+".txt");
+                       		fw = new FileWriter(file.getAbsoluteFile(), true);
                        		bw = new BufferedWriter(fw);
                        		
                        		bw.write("*\n*-*_*-*_*-*_*-*_*-*_*-*_*-*_*-*_*\n");
@@ -206,7 +185,6 @@ public class DataCollector
                             fw.close();
                        		
                        	} catch (IOException e) {
-
                 			e.printStackTrace();
                        	}
    					}
@@ -225,7 +203,7 @@ public class DataCollector
         	try {
         		if (br != null)br.close();
         	} catch (IOException ex) {
-        	ex.printStackTrace();
+        		ex.printStackTrace();
         	}
         }
     }
@@ -233,18 +211,16 @@ public class DataCollector
     public static void createDocuments() { //store information about business in text file
     	FileOutputStream outputStream = null;
     	for(String id : restaurants.keySet()) {
-    		try
-        	{
-            	outputStream = new FileOutputStream("C:\\Users\\stell\\eclipse-workspace\\RestaurantReviews\\Documents\\"+id+".txt");
+    		try {
+            	outputStream = new FileOutputStream("Documents/"+id+".txt");
         	}
-        	catch(FileNotFoundException e)
-        	{
+        	catch(FileNotFoundException e) {
         		System.out.println("Error opening the file.");
         		System.exit(0);
         	}
     		PrintWriter outputWriter = new PrintWriter(outputStream);
-    		for(String c : restaurants.get(id)) {
-    			outputWriter.println(c);
+    		for(String restaurant : restaurants.get(id)) {
+    			outputWriter.println(restaurant);
                 outputWriter.print("*-*_*-*_*-*_*-*_*-*_*-*_*-*_*-*_*\n");
     		}
     		outputWriter.close();

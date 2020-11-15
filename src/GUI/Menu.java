@@ -35,8 +35,8 @@ public class Menu {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Menu window = new Menu(); //create a Menu object
-					window.startMenu(); //call startMenu method
+					Menu window = new Menu();
+					window.startMenu();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -44,7 +44,7 @@ public class Menu {
 		});
 	}
 
-	public Menu() {} //empty constractor
+	public Menu() {}
 	
 	public void startMenu() { //first window with choices: Search Restaurants and Search Reviews
 		JFrame frame = new JFrame();
@@ -143,23 +143,21 @@ public class Menu {
 		
 		JButton btnNewButton = new JButton("Search");
 		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { //select user's choices here
+			public void actionPerformed(ActionEvent e) {
 				String field = comboBox.getSelectedItem().toString();
 				String sortBy = comboBox_1.getSelectedItem().toString();
-				if (field.equals("location and review")){
+				if (field.equals("location and review"))
 					field = "location and review";
-				}
-				else if (field.equals("name and review")) {
+				else if (field.equals("name and review"))
 					field = "name and review";
-				}
-				
+
 				String userQuery = textField.getText();
-				Search searchObject = new Search(); //create a Search object
 				try {
-					searchObject.doSearch(userQuery, field, kindOfSearch, sortBy); //call doSearch method in Search class,
+					Search.doSearch(userQuery, field, kindOfSearch, sortBy); //call doSearch method in Search class,
 				} catch (IOException | ParseException e1) {						   //with user's choices, for result's search
 					e1.printStackTrace();
 				}
+				
 				frmSearchEngine.setVisible(false);
 			}
 		});
@@ -190,18 +188,15 @@ public class Menu {
 	     String  asColName[] = {"Document", "Document's Link", "A part of the Document"}; //the window has 3 columns
 		 Object[][] aoData = new Object[hits.size()] [asColName.length];
 		 int counter = 0;
-		 for (String name : hits.keySet())
-	     {
+		 for (String name : hits.keySet()) {
 	         aoData[counter][0] = name; //first column has the name of the Files
-	         aoData[counter][1] = "Documents\\"+hits.get(name)+".txt"; //second column has the path of the Files
+	         aoData[counter][1] = "Documents/"+hits.get(name)+".txt"; //second column has the path of the Files
 	        
 	         Scanner inputReader = null;
-	         try
-	         {
-	        	 inputReader = new Scanner(new FileInputStream("Documents\\"+hits.get(name)+".txt")); 
+	         try {
+	        	 inputReader = new Scanner(new FileInputStream((String)aoData[counter][1])); 
 	         }
-	         catch(FileNotFoundException e)
-	         {
+	         catch(FileNotFoundException e) {
 	        	 System.out.println("File was not found");
 	        	 System.out.println("or could not be opened.");
 	        	 System.exit(0);
@@ -214,9 +209,8 @@ public class Menu {
 	        		 break;
 	        	 }
 	         }
-	         if(aoData[counter][2] == null) {
+	         if(aoData[counter][2] == null)
 	        	 aoData[counter][2] = "...";
-	         }
 	         counter ++;
 	     }
 		 
