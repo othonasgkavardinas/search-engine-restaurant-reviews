@@ -2,7 +2,7 @@
 
 ## Search Engine
 Ανάκτηση πληροφορίας  
-Search Engine for restaurants in Yelp Dataset.
+Search Engine that answers queries about restaurants and restaurant reviews in the Yelp Dataset 2018.
 
 ### /files
 Contains the assignment and the project report.
