@@ -15,7 +15,7 @@ Import Java project to Eclipse.
 - Project works for Yelp dataset 2018, json format.  
 (contains business.json and review.json)  
 - Lucene version 7.2.1 is used.  
-- Yelp dataset is not provided.
+- Yelp dataset not provided.
 
 ### Tested on
 Eclipse 2020-03  
